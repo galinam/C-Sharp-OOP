@@ -3,16 +3,22 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Reflection;
+using MatrixT;
+using System.ComponentModel.DataAnnotations;
 
 namespace MatrixT
 {
+    [Version(1, 0)]
     class Matrix<T>
-        where T : IComparable, IComparable<T>, IEquatable<T>
+        where T : IComparable<T>, IEquatable<T>//, INumeric<T>
     {
         private T[,] matrix;
 
         public int Row { get; set; }
         public int Col { get; set; }
+
+        //[Required]
         public int Count { get; private set; }
 
 
@@ -27,7 +33,7 @@ namespace MatrixT
                 }
                 catch (System.IndexOutOfRangeException ex)
                 {
-                    System.ArgumentException argEx = new System.ArgumentException("Index is out of range of the GenericList boundary", "index", ex);
+                    System.ArgumentException argEx = new System.ArgumentException("Index is out of range of the Matrix boundary!", "index", ex);
                     throw argEx;
                 }
 
@@ -45,7 +51,6 @@ namespace MatrixT
             this.Col = col;
             this.Count = 0;
             this.matrix = new T[Row, Col];
-
         }
 
         //public void Add(T item)
@@ -54,13 +59,14 @@ namespace MatrixT
         //    this.matrix[Row - 1,Col -1] = item;
         //}
 
-        
+
 
         public static Matrix<T> operator +(Matrix<T> matrixF, Matrix<T> matrixS)
         {
+
             Matrix<T> result = new Matrix<T>(matrixF.GetLength(0), matrixF.GetLength(1));
 
-            if (ValidateMatrixSize(matrixF, matrixS))
+            if (ValidateMatrixSizes(matrixF, matrixS) && ValidateMatrixTypes(matrixF, matrixS))
             {
                 for (int row = 0; row < matrixF.GetLength(0); row++)
                 {
@@ -70,14 +76,14 @@ namespace MatrixT
                     }
                 }
             }
-            return result;
+            return (dynamic)result;
 
         }
         public static Matrix<T> operator -(Matrix<T> matrixF, Matrix<T> matrixS)
         {
             Matrix<T> result = new Matrix<T>(matrixF.GetLength(0), matrixF.GetLength(1));
 
-            if (ValidateMatrixSize(matrixF, matrixS))
+            if (ValidateMatrixSizes(matrixF, matrixS) && ValidateMatrixTypes(matrixF, matrixS))
             {
                 for (int row = 0; row < matrixF.GetLength(0); row++)
                 {
@@ -93,7 +99,7 @@ namespace MatrixT
         {
             Matrix<T> result = new Matrix<T>(matrixF.GetLength(0), matrixF.GetLength(1));
 
-            if (ValidateMatrixSize(matrixF, matrixS))
+            if (ValidateMatrixSizes(matrixF, matrixS) && ValidateMatrixTypes(matrixF, matrixS))
             {
                 for (int row = 0; row < matrixF.GetLength(0); row++)
                 {
@@ -121,7 +127,7 @@ namespace MatrixT
             return result;
         }
 
-        private static bool ValidateMatrixSize(Matrix<T> matrixF, Matrix<T> matrixS)
+        private static bool ValidateMatrixSizes(Matrix<T> matrixF, Matrix<T> matrixS)
         {
             bool result = false;
             try
@@ -129,6 +135,10 @@ namespace MatrixT
                 if ((matrixF.GetLength(0) == matrixS.GetLength(0)) && (matrixF.GetLength(1) == matrixS.GetLength(1)))
                 {
                     result = true;
+                }
+                else
+                {
+                    throw new ArgumentException("The operation cannot be performed. Size faild.");
                 }
             }
             catch (FormatException ex)
@@ -139,6 +149,130 @@ namespace MatrixT
 
             return result;
         }
+
+        private static bool ValidateMatrixTypes(Matrix<T> matrixF, Matrix<T> matrixS)
+        {
+            bool result = false;
+            try
+            {
+                if (IsNumericType(matrixF) && IsNumericType(matrixS) && matrixF.GetType().Equals(matrixS.GetType()))
+                {
+                    result = true;
+                }
+                else
+                {
+                    throw new ArgumentException("The operation cannot be performed. Type faild.");
+                }
+            }
+            catch (FormatException ex)
+            {
+
+                throw new ArgumentException("The operation cannot be performed.", ex.Message);
+            }
+
+            return result;
+        }
+
+        private static bool IsNumericType(Matrix<T> matrix)
+        {
+            switch (Type.GetTypeCode(matrix.GetType().GetTypeInfo().GenericTypeArguments[0]))
+            {
+                case TypeCode.UInt32:
+                case TypeCode.UInt64:
+                case TypeCode.Int32:
+                case TypeCode.Int64:
+                case TypeCode.Decimal:
+                case TypeCode.Double:
+                case TypeCode.Single:
+                    return true;
+                default:
+                    return false;
+            }
+        }
+
+        //private static Matrix<T> ResultType(Matrix<T> matrixF)
+        //{
+        //    if (matrixF.GetType().GetTypeInfo().GenericTypeArguments[0].Equals(TypeCode.Byte) ||
+        //        matrixF.GetType().GetTypeInfo().GenericTypeArguments[0].Equals(TypeCode.SByte) ||
+        //        matrixF.GetType().GetTypeInfo().GenericTypeArguments[0].Equals(TypeCode.UInt16) ||
+        //        matrixF.GetType().GetTypeInfo().GenericTypeArguments[0].Equals(TypeCode.Int16))
+        //    {
+        //        Matrix<int> result = new Matrix<int>(matrixF.GetLength(0), matrixF.GetLength(1));
+        //        return (dynamic)result;
+        //    }
+        //    else
+        //    {
+        //        Matrix<T> result = new Matrix<T>(matrixF.GetLength(0), matrixF.GetLength(1));
+        //        return result;
+        //    };
+        //}
+
+        //private static bool IsNumericType1(Matrix<T> matrix)
+        //{
+           
+        //    try
+        //    {
+        //        switch (Type.GetTypeCode(matrix.GetType().GetTypeInfo().GenericTypeArguments[0]))
+        //        {
+        //            case TypeCode.UInt32:
+        //            case TypeCode.UInt64:
+        //            case TypeCode.Int32:
+        //            case TypeCode.Int64:
+        //            case TypeCode.Decimal:
+        //            case TypeCode.Double: //typeof(double) = typeof(MatrixT.INumeric<double>);
+        //            case TypeCode.Single:
+        //                return true;
+        //            default:
+        //                return false;
+        //        }
+        //    }
+        //    catch (TypeAccessException ex)
+        //    {
+
+        //        throw new TypeAccessException(ex.Message);
+        //    }
+
+        //}
+
+        public T Value { get; private set; }
+        public Matrix(T val) { Value = val; }
+
+        public static implicit operator T(Matrix<T> matrix) { return matrix.Value; }
+        public static implicit operator Matrix<T>(T val) { return new Matrix<T>(val); }
+
+
+
+        //public static implicit operator int (T)
+        // {
+        //if (IsNumericType(matrix.GetType()))
+        //{
+        //  return t.
+        //}
+        //}
+
+        public static implicit operator bool(Matrix<T> matrix)
+        {
+            bool result = true;
+            dynamic zero = 0;
+            if (IsNumericType(matrix))
+            {
+                for (int row = 0; row < matrix.GetLength(0); row++)
+                {
+                    for (int col = 0; col < matrix.GetLength(1); col++)
+                    {
+                        if (matrix[row, col] == zero)
+                        {
+                            result = false;
+                        }
+                    }
+                }
+            }
+            else result = false;
+
+            return result;
+        }
+
+
 
         public override string ToString()
         {
@@ -153,7 +287,7 @@ namespace MatrixT
             }
 
             return sb.ToString();
-            
+
         }
     }
 }
