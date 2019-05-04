@@ -39,13 +39,29 @@ namespace _05.OrderStudents
             var orderSudentsByFirstAndLastNameDescending1 =
                 (from student in students
                  orderby student.FirstName descending
-                 orderby student.LastName descending
-                 select student).ToList();
-
+                 select student
+                 ).ToList();
+            
             foreach (var student in orderSudentsByFirstAndLastNameDescending1)
             {
                 Console.WriteLine(student.FirstName +" "+ student.LastName);
-            } 
+            }
+
+
+            Console.WriteLine();
+            var orderSudentsByFirstAndLastNameDescending11 =
+                 from student in students
+                 group student by student.FirstName into newGroup
+                 orderby newGroup.Key descending
+                 select newGroup;
+            foreach (var nameGroup in orderSudentsByFirstAndLastNameDescending11)
+            {
+                Console.WriteLine($"Key: {nameGroup.Key}");
+                foreach (var student in nameGroup)
+                {
+                    Console.WriteLine($"\t{student.FirstName}, {student.LastName}");
+                }
+            }
 
             Console.WriteLine();
             var orderSudentsByFirstAndLastNameDescending2 =

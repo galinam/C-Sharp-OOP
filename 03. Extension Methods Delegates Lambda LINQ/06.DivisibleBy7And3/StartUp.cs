@@ -25,7 +25,6 @@ namespace _06.DivisibleBy7And3
             }
 
             Console.WriteLine();
-
             var _numDevisibleBy7And3 =
                 (from number in array
                 where number % 7 == 0 && number % 3 == 0

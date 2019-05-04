@@ -17,7 +17,8 @@ namespace _02.IEnumerable
                 //IEnumerable<string> strList = new string[] { "2", "3" };
                 IEnumerable<uint> list = new uint[] { 1, 2, 3, 4, 5, 6, 7, 8, 9 };
 
-                //IEnumerable<string> s = strList.Sum<string>;
+                //var s = strList.Product();
+                //Console.WriteLine(s);
 
                 Console.WriteLine("The sum is {0}", list.Sum<uint>());
                 Console.WriteLine("The product is {0}", list.Product<uint>());

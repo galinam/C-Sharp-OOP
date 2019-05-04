@@ -1,4 +1,8 @@
-﻿using System;
+﻿/* Write a method that from a given array of students finds all students whose first name is before its last name alphabetically.
+Use LINQ query operators.
+*/
+
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -20,7 +24,7 @@ namespace _03.FirstBeforeLast
 
         static void Main(string[] args)
         {
-            var s1 = new Student { FirstName = "A", LastName = "B" };
+            //var s1 = new Student { FirstName = "A", LastName = "B" };
 
             Student[] students = new Student[]
             {
